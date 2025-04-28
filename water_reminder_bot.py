@@ -41,7 +41,7 @@ def get_unique_jimin_image():
 
 # Функція для надсилання нагадування та картинки
 def send_water_reminder():
-    now = datetime.now().strftime('%H:%M')
+    now = datetime.utcnow() + timedelta(hours=3).strftime('%H:%M')
     msg = f"🕒 {now}\n\n" + random.choice(messages)
 
     # Надсилаємо текстове повідомлення
@@ -81,7 +81,7 @@ def send_water_reminder():
 print("Бот запущено. Нагадування надсилатимуться кожні 40 хвилин з 9:00 до 23:00.")
 
 while True:
-    current_hour = datetime.now().hour
+    current_hour = datetime.utcnow() + timedelta(hours=3).hour
 
     if 9 <= current_hour < 23:  # Перевірка: тільки з 9:00 до 23:00
         send_water_reminder()
