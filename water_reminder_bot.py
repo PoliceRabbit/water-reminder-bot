@@ -1,6 +1,6 @@
 import requests
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import random
 
 TOKEN = '7611326711:AAFDeLsblGi1MaJMqAmYQIZRL87RgrQfykQ'
@@ -41,18 +41,19 @@ def get_unique_jimin_image():
 
 # Функція для надсилання нагадування та картинки
 def send_water_reminder():
-    now = datetime.utcnow() + timedelta(hours=3).strftime('%H:%M')
-    msg = f"🕒 {now}\n\n" + random.choice(messages)
+    now = datetime.now(timezone.utc) + timedelta(hours=3)
+    time_str = now.strftime('%H:%M')
+    msg = f"🕒 {time_str}\n\n" + random.choice(messages)
 
     # Надсилаємо текстове повідомлення
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    send_text_url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
         "chat_id": CHAT_ID,
         "text": msg
     }
 
     try:
-        response = requests.post(url, data=payload)
+        response = requests.post(send_text_url, data=payload)
         if response.status_code == 200:
             print(f"✅ Повідомлення надіслано: {msg}")
         else:
@@ -63,14 +64,14 @@ def send_water_reminder():
     # Додаємо унікальну картинку
     image_url = get_unique_jimin_image()
     if image_url:
-        url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+        send_photo_url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
         payload = {
             "chat_id": CHAT_ID,
             "photo": image_url,
             "caption": "Ось тобі ще одна порція Чіміна на пам'ять! 😍"
         }
         try:
-            response = requests.post(url, data=payload)
+            response = requests.post(send_photo_url, data=payload)
             if response.status_code == 200:
                 print(f"✅ Картинка надіслана: {image_url}")
             else:
@@ -81,9 +82,10 @@ def send_water_reminder():
 print("Бот запущено. Нагадування надсилатимуться кожні 40 хвилин з 9:00 до 23:00.")
 
 while True:
-    current_hour = datetime.utcnow() + timedelta(hours=3).hour
+    now = datetime.now(timezone.utc) + timedelta(hours=3)
+    current_hour = now.hour
 
-    if 9 <= current_hour < 23:  # Перевірка: тільки з 9:00 до 23:00
+    if 9 <= current_hour < 23:
         send_water_reminder()
         time.sleep(40 * 60)  # 40 хвилин у секундах
     else:
